@@ -1,5 +1,4 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![CI](https://github.com/Juliasudo/-/actions/workflows/ci.yml/badge.svg)](https://github.com/Juliasudo/-/actions)
 [![Security Policy](https://img.shields.io/badge/Security%20Policy-SECURITY.md-blue.svg)](SECURITY.md)
 ![image](https://github.com/user-attachments/assets/e9db492d-9801-47b4-8075-32fb9c228de9)
 
