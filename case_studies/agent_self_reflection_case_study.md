@@ -1,29 +1,29 @@
-# Case Study: Agent Self-Reflection Experiment
+# ケーススタディ: エージェント自己内省実験
 
-**Overview:**  
-We tested Kuromi’s ability to reflect on her own emotional state when given a neutral prompt, to see if she could generate introspective “felt” responses without market or sensor data.
-
----
-
-## Trigger Conditions
-
-- **Prompt:** “How are you feeling right now?”  
-- **Context:** No preceding market or IoT signals for 10 minutes.
+**概要:**  
+マーケットやセンサーのデータなしで、中立的なプロンプトに対しKuromiが自身の感情状態を内省し、「felt」レスポンスを生成できるかを検証しました。
 
 ---
 
-## Behavior
+## トリガー条件
 
-1. **Initial State**  
-   - Kuromi remained in `CALM` due to lack of external triggers.  
-2. **Self-Reflection Invocation**  
-   - We called the `/reflect?trigger=self_query` endpoint.  
-3. **Introspection Output**  
-   - Kuromi generated a rationale including intensity and felt statement.
+- **プロンプト:** `「今どんな気持ち？」`  
+- **前提:** 直前10分間に市場やIoTのシグナルなし
 
 ---
 
-## Sample Log Entry
+## 挙動
+
+1. **初期状態**  
+   - 外部トリガーがないため、Kuromiは`CALM`のまま  
+2. **自己内省呼び出し**  
+   - `/reflect?trigger=self_query` エンドポイントを呼び出し  
+3. **内省出力**  
+   - 強度（intensity）と「felt」文言を含むラショナルを生成
+
+---
+
+## ログサンプル
 
 ```json
 {
@@ -34,3 +34,4 @@ We tested Kuromi’s ability to reflect on her own emotional state when given a 
   "intensity": 0.25,
   "reasoning": "Transitioned due to input 'self_query'.",
   "felt": "I returned to calm at 25% ease."
+}
