@@ -1,6 +1,6 @@
-# SphinxLLM — The System‑Native LLM (Backend‑Only)
+# SphinxLLM — The System‑Native LLM 
 
-SphinxLLM is an on‑device, privacy‑first model that lives in your OS, senses context (files, clipboard, calendar, windows), and executes audited automations you approve. This README covers the **runtime**, **CLI**, **rules**, **connectors**, **security**, and **roadmap** — no UI required.
+SphinxLLM is an on‑device, privacy‑first model that lives in your OS, senses context (files, clipboard, calendar, windows), and executes audited automations you approve.
 
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/01bfd27f-a546-46a0-9ce2-cfd05ca5bedd" />
 
