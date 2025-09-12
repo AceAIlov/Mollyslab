@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SphinxLLM — The System-Native LLM</title>
+  <meta name="description" content="SphinxLLM is an on-device, privacy-first model that lives in your OS, senses context, and executes audited automations you approve." />
+  <style>
+    :root{
+      --bg1:#0b1020; --fg:#e8eefc; --muted:#a7b0c6; --card:#0f162b; --line:#1c2543;
+      --acc1:#f0abfc; --acc2:#a5b4fc; --acc3:#7dd3fc;
+      --radius:16px; --shadow:0 12px 40px rgba(0,0,0,.35);
+    }
+    /* ===== Reset / Base ===== */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font:16px/1.55 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;
+      color:var(--fg); background:var(--bg1); overflow-x:hidden;
+    }
+    a{color:inherit; text-decoration:none}
+    .container{max-width:1100px; margin:0 auto; padding:24px}
+    h1,h2,h3{margin:0 0 10px}
+    h1{font-size:42px; line-height:1.1}
+    h2{font-size:24px; line-height:1.2}
+    h3{font-size:18px; line-height:1.3; color:var(--fg)}
+    p,ul,pre{margin:10px 0 0}
+    ul{padding-left:18px}
+    code,kbd,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    /* ===== Mesh gradient — fast, mysterious ===== */
+    body::before, body::after{
+      content:""; position:fixed; inset:-30vmax; z-index:-2;
+      background:
+        radial-gradient(30vmax 30vmax at 15% 25%, rgba(240,171,252,.15) 0 60%, transparent 61%),
+        radial-gradient(28vmax 28vmax at 85% 20%, rgba(125,211,252,.12) 0 60%, transparent 61%),
+        radial-gradient(26vmax 26vmax at 70% 80%, rgba(165,180,252,.12) 0 60%, transparent 61%),
+        radial-gradient(24vmax 24vmax at 15% 80%, rgba(240,171,252,.10) 0 60%, transparent 61%);
+      background-repeat:no-repeat; filter:blur(10px);
+      animation:meshMove 18s linear infinite alternate;
+    }
+    body::after{animation-duration:22s; mix-blend-mode:screen; opacity:.7}
+    @keyframes meshMove{
+      0%{transform:translate3d(-4%, -2%, 0) rotate(0.2deg)}
+      100%{transform:translate3d(4%, 2%, 0) rotate(-0.2deg)}
+    }
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce){
+      body::before,body::after{animation:none}
+    }
+    /* ===== Components ===== */
+    .nav{
+      position:sticky; top:0; z-index:10; backdrop-filter:blur(10px);
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.00));
+      border-bottom:1px solid var(--line);
+    }
+    .row{display:flex; align-items:center; justify-content:space-between; gap:16px}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.2px}
+    .orb{width:26px; height:26px; border-radius:8px; background:linear-gradient(135deg, var(--acc1), var(--acc3)); box-shadow:0 0 0 2px rgba(255,255,255,.08) inset}
+    .links a{opacity:.8} .links a:hover{opacity:1}
+    .section{padding:36px 0}
+    .hero h1 .shimmer{
+      background-image:linear-gradient(90deg, var(--acc1), var(--acc2), var(--acc3), var(--acc1));
+      -webkit-background-clip:text; background-clip:text; color:transparent; background-size:200% 100%;
+      animation:shimmer 10s linear infinite;
+    }
+    @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+    .muted{color:var(--muted)}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:18px;
+    }
+    .grid{display:grid; gap:16px}
+    .g-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    @media (max-width:920px){.g-2,.g-3{grid-template-columns:1fr}}
+    .placeholder{
+      border:1px dashed #3a4470; border-radius:14px; height:240px; display:grid; place-items:center; color:#9aa7ce;
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));
+    }
+    pre{
+      background:#0a1226; border:1px solid var(--line); border-radius:12px; padding:14px; overflow:auto;
+    }
+    .kbd{display:inline-block; padding:.15em .45em; border:1px solid #3a4470; border-radius:6px; background:#0b142a}
+    .tree{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; white-space:pre-wrap}
+    .tag{display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:.25rem .5rem; border-radius:12px; border:1px solid var(--line); background:#0a1326;color:#cfe0ff}
+    .hr{height:1px; background:linear-gradient(90deg, transparent, #2a3563, transparent); border:0; margin:22px 0}
+    .small{font-size:13px}
+    .footer{padding:28px 0; color:#9fb0d8; border-top:1px solid var(--line); text-align:center}
+  </style>
+</head>
+<body>
+  <!-- Nav -->
+  <div class="nav">
+    <div class="container row">
+      <div class="brand">
+        <span class="orb"></span><span>SphinxLLM</span><span class="tag">System-Native</span>
+      </div>
+      <div class="links small row" style="gap:14px;">
+        <a href="#core">Principles</a>
+        <a href="#install">Install</a>
+        <a href="#quickstart">Quickstart</a>
+        <a href="#config">Config</a>
+        <a href="#connectors">Connectors</a>
+        <a href="#security">Security</a>
+        <a href="#troubleshooting">Help</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <header class="container section hero">
+    <h1>SphinxLLM — <span class="shimmer">The System-Native LLM</span></h1>
+    <p class="muted" style="max-width:800px">
+      SphinxLLM is an on-device, privacy-first model that lives in your OS, senses context (files, clipboard, calendar, windows),
+      and executes audited automations you approve.
+    </p>
+    <div class="placeholder" aria-label="image placeholder">image</div>
+  </header>
+
+  <!-- Core Principles -->
+  <section id="core" class="container section">
+    <h2>Core Principles</h2>
+    <div class="grid g-3" style="margin-top:12px">
+      <div class="card"><h3>Local-first</h3><p class="muted">All inference and planning happen on your machine.</p></div>
+      <div class="card"><h3>System-native</h3><p class="muted">Sensors gather ambient context (opt-in and scoped).</p></div>
+      <div class="card"><h3>Human-in-the-loop</h3><p class="muted">Sensitive actions require explicit approval.</p></div>
+      <div class="card"><h3>Least privilege</h3><p class="muted">Capability tokens gate every operation.</p></div>
+      <div class="card"><h3>Auditable</h3><p class="muted">Every plan and action is logged locally for review.</p></div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section id="install" class="container section">
+    <h2>Install</h2>
+    <p class="muted">Choose one path:</p>
+    <div class="grid g-2" style="margin-top:12px">
+      <div class="card">
+        <h3>Download a prebuilt binary <span class="small muted">(recommended)</span></h3>
+        <ul class="muted">
+          <li>Linux (AppImage), macOS (Apple Silicon), Windows (x64/Arm64).</li>
+          <li>Place it on your <span class="kbd">PATH</span> as <span class="kbd">sphinx</span> and run <span class="kbd">sphinx version</span>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Build from source <span class="small muted">(example)</span></h3>
+        <pre><code># prerequisites vary by platform; example shows typical dev flow
+git clone https://example.com/sphinxllm/runtime.git
+cd runtime
+make build   # or cargo build / bun build / uvx, depending on the repo
+./target/release/sphinx --help</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quickstart -->
+  <section id="quickstart" class="container section">
+    <h2>Quickstart (CLI)</h2>
+    <pre><code>sphinx init
+sphinx status
+sphinx sensors list
+sphinx rules add examples/rules.yaml
+sphinx run  # start local daemon</code></pre>
+    <p class="muted">When the daemon is running, try:</p>
+    <pre><code>sphinx ask "Summarize what I worked on today"
+sphinx plan "If calendar says focus, silence notifications and start a 25-min timer"
+sphinx memory snapshot --out snapshots/$(date +%F).bin</code></pre>
+  </section>
+
+  <!-- Configuration -->
+  <section id="config" class="container section">
+    <h2>Configuration</h2>
+    <h3 class="small muted">Default config file locations:</h3>
+    <ul class="muted">
+      <li>Linux: <code>~/.config/sphinxllm/config.yaml</code></li>
+      <li>macOS: <code>~/Library/Application Support/SphinxLLM/config.yaml</code></li>
+      <li>Windows: <code>%APPDATA%\SphinxLLM\config.yaml</code></li>
+    </ul>
+    <h3 style="margin-top:10px">Minimal <code>config.yaml</code>:</h3>
+    <pre><code>model:
+  backend: gguf        # or onnx
+  path: ~/.sphinx/models/sphinx-8b-int8.gguf
+  kv_cache_mb: 512
+  gpu: auto
+approval:
+  require_for: [mail.send, filesystem.delete, network.requests]
+logging:
+  level: info
+  path: ~/.sphinx/logs
+memory:
+  store: ~/.sphinx/memory</code></pre>
+
+    <h3 style="margin-top:10px">Example <code>rules.yaml</code> (human-friendly):</h3>
+    <pre><code>- when: clipboard.contains: "invoice"
+  then:
+    - plan: "file the invoice into ~/Finance/2025"
+    - ask: "Do you want me to rename it with date + vendor?"
+    - require_approval: true
+
+- when: calendar.event.starts_in_minutes: 5
+  and: calendar.event.is_meeting: true
+  then:
+    - plan: "open notes, outline agenda, and prepare recent docs"
+    - require_approval: false</code></pre>
+
+    <h3 style="margin-top:10px">Load rules:</h3>
+    <pre><code>sphinx rules add ./rules.yaml
+sphinx rules list</code></pre>
+  </section>
+
+  <!-- Connectors -->
+  <section id="connectors" class="container section">
+    <h2>Capabilities &amp; Connectors</h2>
+    <p class="muted">Register audited operations your runtime is allowed to perform. Each capability lives behind a token you can revoke.</p>
+    <div class="grid g-2" style="margin-top:12px">
+      <div class="card">
+        <h3>TypeScript connector (example)</h3>
+        <pre><code>import { Sphinx } from "@sphinx/sdk";
+const sphinx = await Sphinx.attach();
+
+sphinx.capability("filesystem.move", async (from: string, to: string) => {
+  // implement safe file move with validations
+});
+
+sphinx.on("clipboard:change", ({ text }) => {
+  if (text?.includes("invoice")) sphinx.plan("file the invoice into ~/Finance/2025");
+});</code></pre>
+      </div>
+      <div class="card">
+        <h3>Python connector (example)</h3>
+        <pre><code>from sphinx import Sphinx
+sphinx = Sphinx.attach()
+
+@sphinx.capability("mail.draft")
+def draft_mail(to: str, subject: str, body: str):
+    # implement a local mail draft connector
+    ...
+
+@sphinx.on("calendar:meeting_start")
+def on_meeting(evt):
+    sphinx.plan("open notes, start recorder, outline agenda")</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Security -->
+  <section id="security" class="container section">
+    <h2>Security Model</h2>
+    <div class="grid g-2" style="margin-top:12px">
+      <div class="card">
+        <ul class="muted">
+          <li><b>Signals:</b> clipboard, files, calendar, notifications, window focus (all opt-in).</li>
+          <li><b>Approval Gate:</b> blocklist/allowlist + interactive prompts for sensitive ops.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <ul class="muted">
+          <li><b>Capability:</b> narrow, revocable operation (e.g., <code>filesystem.move</code>, <code>mail.draft</code>).</li>
+          <li><b>Audit Log:</b> immutable local log of plans, diffs, and outcomes.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Storage layout -->
+  <section id="storage" class="container section">
+    <h2>Storage Layout</h2>
+    <pre class="tree"><code>~/.sphinx/
+  models/         # downloaded or user-provided weights
+  memory/         # encrypted long-term memory snapshots
+  logs/           # daemon + action logs
+  approvals/      # pending/approved decisions
+  rules/          # user-authored rules</code></pre>
+  </section>
+
+  <!-- Roadmap -->
+  <section id="roadmap" class="container section">
+    <h2>Roadmap</h2>
+    <p class="muted">Public roadmap will be published here.</p>
+  </section>
+
+  <!-- Troubleshooting -->
+  <section id="troubleshooting" class="container section">
+    <h2>Troubleshooting</h2>
+    <div class="card" style="margin-top:12px">
+      <ul class="muted">
+        <li><b>Model won’t load:</b> check <code>config.yaml</code> paths and backend (gguf/onnx).</li>
+        <li><b>High CPU/GPU:</b> lower <code>kv_cache_mb</code>, reduce context length, prefer int8.</li>
+        <li><b>Rules not firing:</b> confirm <code>sphinx sensors list</code> shows events; run with <code>--verbose</code>.</li>
+        <li><b>Approvals stuck:</b> inspect <code>~/.sphinx/approvals/</code> and clear stale entries.</li>
+        <li><b>Memory snapshots:</b> only decryptable on the same device unless you export keys.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Contributing & License -->
+  <section id="contrib" class="container section">
+    <div class="grid g-2">
+      <div class="card">
+        <h2>Contributing</h2>
+        <ul class="muted">
+          <li>Fork &amp; branch: <code>git checkout -b feat/my-change</code></li>
+          <li>Use conventional commits: <code>feat:</code>, <code>fix:</code>, <code>docs:</code></li>
+          <li>Include minimal tests for connectors/rules</li>
+          <li>Open a PR and describe your scenario (signals → plan → capability)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>License</h2>
+        <p class="muted">MIT — © 2025 SphinxLLM contributors.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    SphinxLLM — mysterious &amp; simple • mesh gradient background • v1
+  </footer>
+</body>
+</html>
