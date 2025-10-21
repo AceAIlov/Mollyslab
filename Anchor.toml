@@ -1,0 +1,16 @@
+[workspace]
+members = [
+  "programs/router",
+  "programs/slab"
+]
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[programs.localnet]
+router = "NxSlbRout3r111111111111111111111111111111"
+slab   = "NxSlabExec1111111111111111111111111111111"
+
+[scripts]
+test = "node --loader ts-node/esm -r ts-node/register tests/mandate-oracle.ts"
