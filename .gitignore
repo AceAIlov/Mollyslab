@@ -1,0 +1,16 @@
+# Node
+node_modules
+.nyc_output
+coverage
+
+# Rust
+/target
+**/*.rs.bk
+
+# Anchor
+.anchor/
+**/target/
+
+# Env
+.env
+.DS_Store
