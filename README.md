@@ -1,4 +1,13 @@
+
+
+
+
+
+
+
 MollySlab — Sharded AI Trading on Solana
+
+
 **Version:** 1.0.1-alpha · **License:** Apache-2.0 · **Status:** Alpha (prod-ready architecture; mainnet requires real oracle + audit)
 
 [![Anchor](https://img.shields.io/badge/Anchor-0.30.x-blue)](#)
@@ -11,6 +20,11 @@ MollySlab is a full-stack framework for running **AI-driven trading agents on So
 - **Rust CLI** (`molly`) — friendly UX with ASCII banner.
 - **TypeScript Orchestrator** — optional Claude integration.
 - **Tests + CI + Docs** — batteries included.
+
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/719a5d3f-6d91-45b2-967e-542c6cbe5544" />
+
+
 
 ---
 
