@@ -60,20 +60,7 @@ Rejects signals with `confidence_bps < 8500` (85% default).
 
 ---
 
-## Diagrams (Mermaid)
 
-### 1) System Overview
-```mermaid
-flowchart TD
-  A[Claude / AI] -->|Signal JSON| O[Orchestrator (TS)]
-  O -->|CLI Calls| CLI[molly CLI]
-  CLI --> RPC[RPC Endpoint]
-  RPC --> R[Router Program]
-  RPC --> S[Slab Program]
-  R --> M[Mandate PDA]
-  R --> OS[OracleScore PDA]
-  S --> E[Events & PnL]
-```
 
 ### 2) End‑to‑End Trade Flow
 ```mermaid
