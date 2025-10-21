@@ -1,28 +1,24 @@
 MollySlab — Sharded AI Trading on Solana
-**Version:** 1.0.1‑alpha · **License:** Apache‑2.0 · **Status:** Alpha (production‑ready architecture; mainnet requires real oracle + audit)
+**Version:** 1.0.1-alpha · **License:** Apache-2.0 · **Status:** Alpha (prod-ready architecture; mainnet requires real oracle + audit)
 
 [![Anchor](https://img.shields.io/badge/Anchor-0.30.x-blue)](#)
 [![Solana](https://img.shields.io/badge/Solana-1.18+-purple)](#)
 [![CI](https://img.shields.io/badge/CI-GitHub%20Actions-green)](#)
 
-MollySlab is a full‑stack framework for running **AI‑driven trading agents on Solana** with strong safety rails.  
-It ships two on‑chain programs (**router**, **slab**), a **Rust CLI** (`molly`), a **TypeScript orchestrator** (Claude integration), tests, docs, and CI.
+MollySlab is a full-stack framework for running **AI-driven trading agents on Solana** with safety rails:
+- **Router** program — mandates, risk gating, admin pause/veto.
+- **Slab** program — isolated per-user execution + PnL tracking.
+- **Rust CLI** (`molly`) — friendly UX with ASCII banner.
+- **TypeScript Orchestrator** — optional Claude integration.
+- **Tests + CI + Docs** — batteries included.
 
 ---
 
 ## Table of Contents
 - [Why MollySlab?](#why-mollyslab)
-- [High‑Level Architecture](#high-level-architecture)
+- [Architecture](#architecture)
 - [Core Concepts](#core-concepts)
-  - [Mandates](#mandates)
-  - [Router Program](#router-program)
-  - [Slab Program](#slab-program)
-  - [Risk & Oracles](#risk--oracles)
-- [Mermaid Diagrams](#mermaid-diagrams)
-  - [System Diagram](#system-diagram)
-  - [E2E Trade Flow](#e2e-trade-flow)
-  - [Accounts & PDAs](#accounts--pdas)
-  - [CI Pipeline](#ci-pipeline)
+- [Diagrams (Mermaid)](#diagrams-mermaid)
 - [Quick Start](#quick-start)
 - [CLI Usage (`molly`)](#cli-usage-molly)
 - [TypeScript Orchestrator](#typescript-orchestrator)
@@ -37,90 +33,49 @@ It ships two on‑chain programs (**router**, **slab**), a **Rust CLI** (`molly`
 ---
 
 ## Why MollySlab?
-AI agents are powerful—but without boundaries, they can be risky. **MollySlab** enforces **ephemeral, scoped permissions** (“mandates”) with **oracle‑gated risk** and **isolated execution slabs** to prevent over‑reach and limit blast radius. It’s ideal for:
-- Bots that need **short‑lived authorization** (e.g., 5‑minute trading windows)
-- Teams who want **guardrails** (pause/veto, thresholds) and **observability** (events/PnL)
-- A clean separation of **decision (AI) vs. execution (on‑chain)**
+AI agents are powerful but risky. MollySlab enforces **ephemeral, scoped permissions** (mandates) with **oracle-gated risk** and **per-user execution slabs** to limit blast radius and keep decision (AI) separate from execution (on-chain).
 
 ---
 
-## High‑Level Architecture
+## Architecture
 
-```mermaid
-flowchart TD
-  subgraph Offchain[Offchain]
-    A[Claude / AI] -->|Signal JSON| O[Orchestrator (TS)]
-    O -->|molly CLI| C[(RPC)]
-  end
-
-  subgraph Onchain[On-chain (Solana)]
-    R[Router Program] -->|Mint mandate| M[Mandate PDA]
-    O2[Oracle Authority] -->|Score asset| S[OracleScore PDA]
-    U[User Wallet] -->|Init slab| L[Slab PDA]
-    L -->|Execute signal| E[(Events & PnL)]
-    R -->|Admin pause/threshold| R
-  end
-
-  C --> R
-  C --> L
-  M -. gated by score/ttl .-> L
-  S -. threshold check .-> R
-```
-
-**Separation of concerns:**
-- **Router**: policy layer (mandates, risk, admin)
-- **Slab**: execution sandbox (owner‑scoped, strategy‑typed)
-- **Orchestrator**: AI signal generation & submission
-- **CLI**: developer & user UX
+- **Router** (policy): initializes admin/oracle, sets threshold, mints/revokes mandates, pause/veto.
+- **Slab** (execution): per-wallet PDA sandbox; validates mandate TTL + confidence; tracks PnL.
+- **Orchestrator** (TS): generates signals (Claude or mock) and forwards to CLI.
+- **CLI** (Rust): init, mandate, deploy, execute, status, revoke, close.
 
 ---
 
 ## Core Concepts
 
-### Mandates
-A **Mandate** authorizes *one* wallet to trade *one* asset using *one* strategy, expiring after a short TTL (default 5 minutes).  
-- PDA seeds: `["mandate", user, asset_mint, [strategy_byte]]`
-- Fields: `user`, `asset_mint`, `strategy`, `expires_at`, `bump`
-- Revocation: user or admin may revoke early.
+**Mandate**  
+Short-lived authorization for *one* wallet → *one* asset → *one* strategy. Default TTL: 300s (5 min).  
+PDA seeds: `["mandate", user, asset_mint, [strategy_byte]]`
 
-### Router Program
-Controls **risk & authorization**:
-- Initialize with `admin`, `oracle_authority`, `risk_threshold_bps`
-- Set **oracle score** per asset
-- Mint / revoke **mandates**
-- **Pause** the system, **update threshold**, and **veto** a mandate
+**Oracle Risk Gating**  
+`OracleScore.score_bps` must be ≥ `RouterState.risk_threshold_bps` (both in basis points).
 
-### Slab Program
-Isolated **execution environment** per user:
-- PDA seeds: `["slab", owner]`
-- Strategy variants: `Momentum | Arbitrage | Lp | MeanReversion`
-- Executes signals only if:
-  - mandate exists & not expired
-  - confidence ≥ 85% (configurable in code)
-- Tracks **performance PnL** & emits events
-
-### Risk & Oracles
-Router checks `OracleScore.score_bps >= RouterState.risk_threshold_bps`.  
-- Score and threshold are **basis points** (0..10000).
-- If score below threshold, mandate mint **fails**.
+**Confidence Threshold (Slab)**  
+Rejects signals with `confidence_bps < 8500` (85% default).
 
 ---
 
-## Mermaid Diagrams
+## Diagrams (Mermaid)
 
-### System Diagram
+### 1) System Overview
 ```mermaid
-graph LR
-  A[Admin] -->|initialize, threshold, pause| R[Router]
-  OA[Oracle Authority] -->|set_oracle_score| R
-  U[User] -->|mint_mandate| R
-  U -->|initialize_slab| SL[Slab]
-  BOT[Orchestrator/CLI] -->|execute_signal| SL
-  R -->|events| MON[Monitoring]
-  SL -->|events| MON
+flowchart TD
+  A[Claude / AI] -->|Signal JSON| O[Orchestrator (TS)]
+  O -->|CLI Calls| CLI[molly CLI]
+  CLI --> RPC[RPC Endpoint]
+  RPC --> R[Router Program]
+  RPC --> S[Slab Program]
+  R --> M[Mandate PDA]
+  R --> OS[OracleScore PDA]
+  S --> E[Events & PnL]
 ```
 
-### E2E Trade Flow
+### 2) End‑to‑End Trade Flow
 ```mermaid
 sequenceDiagram
   participant Admin
@@ -129,17 +84,15 @@ sequenceDiagram
   participant CLI as molly CLI
   participant Router
   participant Slab
-  Admin->>Router: initialize(admin, oracle, threshold_bps)
+  Admin->>Router: initialize(admin, oracle, threshold)
   Oracle->>Router: set_oracle_score(asset, score_bps)
   User->>Router: mint_mandate(asset, strategy, ttl)
   User->>Slab: initialize_slab(strategy)
   CLI->>Slab: execute_signal(direction, confidence, notional, price)
-  Slab->>Slab: check confidence >= 85%
-  Slab->>Router: verify mandate PDA (ttl)
-  Slab-->>CLI: emit SignalExecuted (PnL updated)
+  Slab-->>CLI: SignalExecuted (PnL updated)
 ```
 
-### Accounts & PDAs
+### 3) Accounts & PDAs
 ```mermaid
 classDiagram
   class RouterState {
@@ -156,46 +109,49 @@ classDiagram
   class Mandate {
     +user: Pubkey
     +asset_mint: Pubkey
-    +strategy: Strategy
+    +strategy: u8
     +expires_at: i64
     +bump: u8
   }
   class SlabAccount {
     +owner: Pubkey
-    +strategy: Strategy
+    +strategy: u8
     +performance_pnl: i64
     +last_signal_ts: i64
     +bump: u8
   }
 ```
 
-### CI Pipeline
+### 4) CI Pipeline
 ```mermaid
-flowchart TD
-  C[Push/PR] --> A[Checkout]
-  A --> N[Install Node deps]
-  N --> RA[Install Rust + Anchor]
-  RA --> B[anchor build]
-  B --> T[anchor test]
-  T --> G[Artifacts/Status]
+flowchart LR
+  Push[Push/PR] --> Checkout[Checkout]
+  Checkout --> SetupNode[Setup Node]
+  Checkout --> SetupRust[Setup Rust + Anchor]
+  SetupNode --> Build[anchor build]
+  SetupRust --> Build
+  Build --> Test[anchor test]
+  Test --> Status[Pass/Fail]
 ```
+
+> **Note:** These blocks avoid `subgraph`/shape edge cases to ensure GitHub rendering works. Each statement is on its own line.
 
 ---
 
 ## Quick Start
 
 ```bash
-# 0) Prereqs: Solana 1.18+, Anchor 0.30+, Node 18+, Rust stable
-npm i           # or: pnpm i
+# Prereqs: Solana 1.18+, Anchor 0.30+, Node 18+, Rust stable
+npm i                # or: pnpm i
 anchor build
 solana-test-validator -r --reset
 anchor deploy
 
-# 1) Build CLI
+# Build the CLI
 make cli
 ./target/release/molly --help
 
-# 2) Bootstrap (use your wallet for admin & oracle in local dev)
+# Bootstrap Router (admin & oracle use your wallet in local dev)
 ./target/release/molly init --admin $(solana address) --oracle $(solana address) --threshold-bps 7000
 ```
 
@@ -204,37 +160,31 @@ make cli
 ## CLI Usage (`molly`)
 
 ```bash
-# Show identity & cluster
+# Identity
 molly whoami
 
-# Admin: pause/unpause & threshold
+# Admin controls
 molly pause true
 molly threshold 8000
 
-# Oracle: set risk score for an asset mint
+# Oracle score
 molly oracle-set <ASSET_MINT> 9000
 
-# User: mint mandate (5 minutes = 300s)
+# Mandate (TTL=300s default example)
 molly mandate-mint <ASSET_MINT> momentum 300
 
-# Deploy slab (once per user)
+# Slab lifecycle
 molly deploy momentum
-
-# Execute a signal (AI or manual)
 molly execute --strategy momentum <ASSET_MINT> long 9000 1000 100
-
-# Revoke & close
 molly revoke <USER_PUBKEY> <ASSET_MINT> momentum
 molly close
 ```
 
-**Boot Banner:** The CLI prints an ASCII **MOLLYSLAB** header on startup.
+**CLI boot banner:** prints an ASCII “MOLLYSLAB” header when it starts.
 
 ---
 
 ## TypeScript Orchestrator
-
-Call Claude (or mock) to get a signal and forward to the CLI:
 
 ```ts
 // offchain/src/orchestrator.ts (excerpt)
@@ -246,10 +196,9 @@ spawnSync('./target/release/molly', [
 ], { stdio: 'inherit' });
 ```
 
-**Env:**
+**Env vars**
 ```bash
 cp .env.example .env
-# fill these
 RPC_URL=http://127.0.0.1:8899
 WALLET=~/.config/solana/id.json
 CLAUDE_API_KEY=sk-ant-...
@@ -262,61 +211,56 @@ CLAUDE_API_KEY=sk-ant-...
 ```bash
 anchor test --skip-local-validator
 ```
-
-Included tests:
-- `tests/mandate-oracle.ts` — happy path
-- `tests/admin-controls.ts` — pause/threshold and below‑threshold failure
-- `tests/slab-edges.ts` — low confidence & expired mandate failures
+Included:
+- `tests/mandate-oracle.ts` — E2E happy path
+- `tests/admin-controls.ts` — pause/threshold + below-threshold failure
+- `tests/slab-edges.ts` — low confidence + expired mandate
 
 ---
 
 ## Security Features
-- **Ephemeral mandates** (TTL default 5 minutes)
-- **Oracle‑gated risk** (score vs. threshold)
+- **Ephemeral mandates** (TTL default 5 min)
+- **Oracle-gated risk** (score vs threshold)
 - **Admin controls**: pause/unpause, threshold update, veto
-- **Isolation**: per‑user **Slab** PDA; no cross‑account writes
-- **MEV patterns** (commit‑reveal/TWAP/Jito) ready for integration
+- **Isolation**: user-scoped **Slab** PDA; no cross-account writes
+- **MEV patterns** (commit-reveal/TWAP/Jito) ready for integration
 
-> **Mainnet note:** integrate a real oracle (e.g., Pyth) and add an external **audit** before mainnet.
+> **Mainnet:** integrate a real oracle (e.g., Pyth) and complete an external **audit**.
 
 ---
 
 ## Configuration
-- `Anchor.toml` sets workspace & local program IDs.
-- `Cargo.toml` (workspace) shares dep versions.
-- `package.json` for offchain tooling and tests.
-- `.env.example` lists runtime variables.
-- `.github/workflows/ci.yml` for CI.
+- `Anchor.toml`: workspace & program IDs
+- `Cargo.toml` (workspace): shared deps
+- `package.json`: TS toolchain
+- `.env.example`: runtime variables
+- `.github/workflows/ci.yml`: CI
 
 ---
 
 ## Troubleshooting
+- **Mermaid parse error**: make sure each diagram line is on its own line; avoid `subgraph` and exotic node shapes on GitHub.
 - **IDL not found**: run `anchor build` to generate `target/idl`.
-- **PDA mismatch**: confirm seeds and strategy enum index.
-- **Signature fail / unknown signer**: ensure `WALLET` points to correct keypair.
-- **RPC errors on local**: restart validator with `solana-test-validator -r --reset`.
+- **PDA mismatch**: verify seeds and strategy enum indexes.
+- **Signature errors**: ensure `WALLET` points to a valid keypair.
+- **Local RPC flakiness**: restart validator `solana-test-validator -r --reset`.
 
 ---
 
 ## Roadmap
-- Real oracle integration (Pyth) & DEX CPIs (Jupiter/Raydium)
-- Jito bundles for MEV‑resistant execution
-- Multi‑asset slabs & advanced strategies
+- Real oracle integration (Pyth) + DEX CPIs (Jupiter/Raydium)
+- Jito bundles for MEV-resistant execution
+- Multi-asset slabs & advanced strategies
 - Observability dashboards (Grafana/Prometheus)
 
 ---
 
 ## FAQ
-**Q:** Do I need a mandate for every trade?  
-**A:** Yes—mandates are short‑lived, per‑asset & per‑strategy. They’re the core safety primitive.
-
-**Q:** Can I run without Claude?  
-**A:** Yes. The orchestrator falls back to **mock** signals if `CLAUDE_API_KEY` is missing.
-
-**Q:** Why enforce 85% confidence?  
-**A:** It’s a sane default. Adjust the threshold in the Slab program as needed.
+**Do I need a mandate for every trade?** Yes. Mandates are per-asset, per-strategy, short-lived.  
+**Can I run without Claude?** Yes. Orchestrator falls back to **mock** signals.  
+**Why 85% confidence?** Safe default; change in Slab program if needed.
 
 ---
 
 ## License
-Apache‑2.0 — see `LICENSE`.
+Apache-2.0 — see `LICENSE`.
