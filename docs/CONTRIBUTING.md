@@ -1,9 +1,16 @@
 # Contributing
 
-1. Fork the repo and create a branch for your feature.
-2. Write or update tests in `tests/`.
-3. Ensure code formatting:
-   ```bash
-   poetry run black .
-   poetry run isort .
-   poetry run flake8 .
+## Workflow
+- Fork & branch from `main`
+- `make fmt && make lint`
+- Add tests for new features
+- Submit PR with clear description
+
+## Coding Standards
+- Rust: `clippy` clean, `rustfmt` enforced
+- TS: ESLint + Prettier
+- Commits: `feat:`, `fix:`, `docs:`, `chore:`
+
+## Testing
+- `anchor test --skip-local-validator`
+- Add integration tests for router<->slab flows
