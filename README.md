@@ -14,7 +14,7 @@ MollySlab — Sharded AI Trading on Solana
 [![Solana](https://img.shields.io/badge/Solana-1.18+-purple)](#)
 [![CI](https://img.shields.io/badge/CI-GitHub%20Actions-green)](#)
 
-MollySlab is a full-stack framework for running **AI-driven trading agents on Solana** with safety rails:
+MollySlab is a full-stack framework for running x402 **AI-driven trading agents on Solana and BNB ** with safety rails:
 - **Router** program — mandates, risk gating, admin pause/veto.
 - **Slab** program — isolated per-user execution + PnL tracking.
 - **Rust CLI** (`molly`) — friendly UX with ASCII banner.
