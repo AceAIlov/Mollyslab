@@ -20,7 +20,8 @@ MollySlab is a full-stack framework for running **AI-driven trading agents on So
 - **TypeScript Orchestrator** — optional Claude integration.
 - **Tests + CI + Docs** — batteries included.
 
-![Uploading image.png…]()
+
+<img width="1280" height="853" alt="image" src="https://github.com/user-attachments/assets/c7f34047-e6cf-4977-bd9b-d031ea5ed1ed" />
 
 
 ---
