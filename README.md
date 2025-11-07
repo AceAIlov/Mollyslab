@@ -2,9 +2,7 @@
 
 "静かな情緒を持つ計算 — Quiet emotion, measured by code."
 
-
-![Uploading image.png…]()
-
+<img width="1280" height="853" alt="image" src="https://github.com/user-attachments/assets/fa359ce5-2cb0-4a5a-9c74-ceb1047ab728" />
 
 
 
