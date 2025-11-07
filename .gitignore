@@ -1,14 +1,4 @@
-# Python
-__pycache__/
-*.pyc
-.env
-
-# Rust
-target/
-Cargo.lock
-
-# Node
-node_modules/
-
-# Misc
-.DS_Store
+# Example environment variables
+KIMI_API_KEY=your_kimi_k2_api_key_here
+AZUMI_MODE=development
+PORT=8000
