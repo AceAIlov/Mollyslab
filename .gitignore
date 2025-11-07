@@ -1,16 +1,14 @@
-# Node
-node_modules
-.nyc_output
-coverage
+# Python
+__pycache__/
+*.pyc
+.env
 
 # Rust
-/target
-**/*.rs.bk
+target/
+Cargo.lock
 
-# Anchor
-.anchor/
-**/target/
+# Node
+node_modules/
 
-# Env
-.env
+# Misc
 .DS_Store
