@@ -1,0 +1,6 @@
+[
+  { "input": "hello azumi", "expected_emotion": "curiosity" },
+  { "input": "I am tired", "expected_emotion": "melancholy" },
+  { "input": "you did great", "expected_emotion": "serenity" },
+  { "input": "let's work", "expected_emotion": "focus" }
+]
