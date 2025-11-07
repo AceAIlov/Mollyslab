@@ -1,14 +1,11 @@
 version: '3.8'
 services:
-  kuromi:
-    build: .
-    command: uvicorn agent.core:app --host 0.0.0.0 --port 8000
+  api:
+    build: ./api
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./api:/app
     ports:
       - "8000:8000"
     environment:
-      WALLET_SECRET: ${WALLET_SECRET}
-      QDRANT_URL: ${QDRANT_URL}
-      LLM_API_URL: ${LLM_API_URL}
-      LLM_API_KEY: ${LLM_API_KEY}
-      EMBED_API_URL: ${EMBED_API_URL}
-      EMBED_API_KEY: ${EMBED_API_KEY}
+      - AZUMI_MODE=production
