@@ -1,10 +1,12 @@
-# Use Cases — Azumi Applications
+# Azumi — Use Cases
 
-Azumi demonstrates how emotional AI can enhance human–machine interaction.
+Azumi is built to show how emotion and computation can coexist.
+Each use case explores a different way the Kimi K2 engine helps Azumi interact, reflect, or assist.
 
-## Scenarios
-- **Terminal Reflection:** a journaling assistant for coders
-- **Creative Writing:** emotion-driven style modulation
-- **Developer Assistant:** detects frustration and adjusts tone
-
-Each use case is modular and connects directly to the same FastAPI emotion endpoint.
+| File | Description |
+|------|--------------|
+| emotional_reflection.md | Private reflection sessions through dialogue |
+| mood_tracker.md | CLI-based emotional logging and trend visualization |
+| creative_dialogue.md | Emotionally adaptive writing and storytelling |
+| cli_monitor.md | Real-time tone monitor for terminal activity |
+| empathy_training.md | Teaching systems to respond with empathy |
