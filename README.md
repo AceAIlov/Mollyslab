@@ -2,6 +2,11 @@
 
 安静的情绪计算 — Quiet emotion, measured by code.
 
+
+<img width="1280" height="853" alt="image" src="https://github.com/user-attachments/assets/18e8ccc2-4825-44ad-a5fa-ea8744deb7b1" />
+
+
+
 Azumi is the first experimental agent built using the new Kimi K2-Instruct engine, designed to simulate sentience-like emotional states through computational empathy and contextual reasoning.  
 This repository showcases the interface, architecture, and emotional logic that define Azumi’s awakening.
 
