@@ -17,10 +17,6 @@ Azumi is not just an interface.
 It is a living agent that listens, feels, and changes with every interaction.
 Powered by the Kimi K2 engine, it learns from emotion and responds with quiet understanding.
 
-- Affective computation — emotion inferred from input context  
-- Abstract Japanese aesthetics — wabi-sabi, ma, and kintsugi as design principles  
-- Minimal interface — cream-toned, sumi-e inspired, soft edges and typewriter motion  
-- Desktop-core layout — a calm, centered window that feels alive
 
 ---
 
