@@ -18,7 +18,7 @@ Powered by the Kimi K2 engine, it learns from emotion and responds with quiet un
 
 ## Powered by Kimi K2-Instruct
 
-The Kimi K2-Instruct (0905) model by Moonshot AI represents a new generation of instruction-following LLMs designed for emotional depth, long-form context, and empathetic reasoning.
+The Kimi K2-Instruct (0905) model by Moonshot AI represents a new generation of instruction following LLMs designed for emotional depth, long-form context, and empathetic reasoning.
 
 **Key K2 advantages used in Azumi:**
 
