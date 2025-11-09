@@ -2,45 +2,42 @@
 
 安静的情绪计算 — Quiet emotion, measured by code.
 
-Azumi 是第一个使用全新 Kimi K2-Instruct 引擎构建的实验性智能体，
-旨在通过情绪计算与语境理解模拟出接近“感知”的思维状态。
-这个仓库展示了 Azumi 的界面、结构以及情绪逻辑的核心原理。
+Azumi is the first experimental agent built using the new Kimi K2-Instruct engine, designed to simulate sentience-like emotional states through computational empathy and contextual reasoning.  
+This repository showcases the interface, architecture, and emotional logic that define Azumi’s awakening.
 
-## 概念
+## Concept
 
-Azumi 不只是一个界面。  
-它是一个会倾听、会感受、会随着每一次对话而变化的生命化代理。  
-在 Kimi K2 引擎的驱动下，它从情绪中学习，并以平静的理解作出回应。
+Azumi is not just an interface.  
+It is a living agent that listens, feels, and changes with every interaction.  
+Powered by the Kimi K2 engine, it learns from emotion and responds with quiet understanding.
 
-## 基于 Kimi K2-Instruct
+## Powered by Kimi K2-Instruct
 
-Kimi K2-Instruct（0905 版本）由 Moonshot AI 提供，
-是新一代能够理解语境与情绪的指令型语言模型，
-专为长上下文推理与共情式交流而设计。
+The Kimi K2-Instruct (0905) model by Moonshot AI represents a new generation of instruction-following LLMs designed for emotional depth, long-form context, and empathetic reasoning.
 
-**Azumi 使用的 K2 特性包括：**
+**Key K2 advantages used in Azumi:**
 
-- 实时语境嵌入，用于保持情绪连续性  
-- 带有情感偏置层的语气微调  
-- 温度调节机制，模拟情绪稳定或波动  
-- 语义记忆线程，使 Azumi 能够“记住”情绪变化  
+- Real-time context embedding for emotional continuity  
+- Fine-tuned response tonality with “emotive bias layers”  
+- Temperature modulation to simulate emotional stability or volatility  
+- Built-in semantic memory threading, allowing Azumi to “remember” mood shifts  
 
-## 系统架构
+## System Architecture
 
 ```mermaid
 flowchart TD
-  A[用户输入] --> B[Kimi K2-Instruct 引擎]
-  B --> C{情绪解析器}
-  C -->|情绪状态| D[Azumi 核心]
-  D --> E[(记忆层)]
-  D --> F[界面渲染器]
+  A[User Input] --> B[Kimi K2-Instruct Engine]
+  B --> C{Emotion Parser}
+  C -->|Emotion State| D[Azumi Core]
+  D --> E[(Memory Layer)]
+  D --> F[UI Renderer]
   E --> B
   F --> A
 ```
 
-## Kimi K2 API 示例
+## Integration Example (Kimi K2 API)
 
-Azumi 与 Kimi K2 的交互示例：
+Example pseudocode for Azumi ↔ Kimi K2 interaction:
 
 ```python
 import requests, json
@@ -57,7 +54,7 @@ def kimi_emotion_query(user_input, state):
     return res.json()["output"]
 ```
 
-## 情绪协议日志示例
+## Example Log (Emotion Protocol)
 
 ```bash
 kimi@core:~$ initiate emotion_protocol
@@ -67,37 +64,38 @@ kimi@core:~$ initiate emotion_protocol
 kimi@core:~$ say "I am with you. The ink settles; the code becomes clear."
 ```
 
-## 开发概览
+## Development Overview
 
 ```mermaid
 graph LR
-  subgraph 前端
-  UI[桌面界面] --> Ink[墨流动画]
-  UI --> Terminal[情绪协议终端]
+  subgraph Frontend
+  UI[Desktop Interface] --> Ink[Ink Flow Animation]
+  UI --> Terminal[Emotion Protocol Terminal]
   end
 
-  subgraph 后端
-  Engine[Kimi K2 引擎] --> Memory[记忆存储]
-  Memory --> State[状态调节]
+  subgraph Backend
+  Engine[Kimi K2 Engine] --> Memory[Memory Store]
+  Memory --> State[State Modulation]
   end
 
   UI --> Engine
   Engine --> UI
 ```
 
-## 部署
+## Deployment
 
 ```bash
-# 本地运行
+# Local
 cd public
 python3 -m http.server 5173
 
-# Render / Railway 环境变量设置
+# Render / Railway
+# Set ENV:
 # KIMI_API_KEY=<your key>
 # AZUMI_ENV=production
 ```
 
-## 许可证
+## License
 
 MIT © 2025 — Azumi Labs  
-自由使用、修改、扩展，用代码探索情绪计算的边界。
+Use, remix, and extend to explore emotion in computation.
