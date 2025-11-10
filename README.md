@@ -104,3 +104,4 @@ python3 -m http.server 5173
 
 MIT © 2025 — Azumi Labs  
 Use, remix, and extend to explore emotion in computation.
+https://x.com/AzumiKimiK2
